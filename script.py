@@ -15,21 +15,32 @@ targetFontFileName = "FiraNotoSC"
 versionString = "0.1.0"
 versionFloat = 0.1
 
+notoVFFont = None
+
 # 打开字体文件
-if os.path.exists("source/NotoSansSC-Retina.ttf"):
-    notoRetinaFont = TTFont("source/NotoSansSC-Retina.ttf")
-else:
+def openNotoFont(style: str, weight: int):
+    if os.path.exists(f"source/NotoSansSC-{style}.ttf"):
+        return TTFont(f"source/NotoSansSC-{style}.ttf")
+    global notoVFFont
     if notoVFFont is None:
         notoVFFont = TTFont("source/NotoSansSC-VF.ttf")
-    notoRetinaFont = instancer.instantiateVariableFont(notoVFFont, {"wght": 450})
-if os.path.exists("source/NotoSansSC-Bold.ttf"):
-    notoBoldFont = TTFont("source/NotoSansSC-Bold.ttf")
-else:
-    if notoVFFont is None:
-        notoVFFont = TTFont("source/NotoSansSC-VF.ttf")
-    notoBoldFont = instancer.instantiateVariableFont(notoVFFont, {"wght": 700})
-firaRetinaFont = TTFont("source/FiraCodeNerdFontPropo-Retina.ttf")
-firaBoldFont = TTFont("source/FiraCodeNerdFontPropo-Bold.ttf")
+    return instancer.instantiateVariableFont(notoVFFont, {"wght": weight})
+
+
+def openFiraFont(style: str):
+    return TTFont(f"source/FiraCodeNerdFontPropo-{style}.ttf")
+
+
+notoLightFont = openNotoFont("Light", 300)
+notoRetinaFont = openNotoFont("Retina", 450)
+notoMediumFont = openNotoFont("Medium", 500)
+notoSemiBoldFont = openNotoFont("SemiBold", 600)
+notoBoldFont = openNotoFont("Bold", 700)
+firaLightFont = openFiraFont("Light")
+firaRetinaFont = openFiraFont("Retina")
+firaMediumFont = openFiraFont("Medium")
+firaSemiBoldFont = openFiraFont("SemiBold")
+firaBoldFont = openFiraFont("Bold")
 
 
 # 修改字体元数据
@@ -112,7 +123,10 @@ def modifyMetadata(
     firaOS2.ulCodePageRange2 |= notoOS2.ulCodePageRange2
 
 
+modifyMetadata(firaLightFont, notoLightFont, "Light")
 modifyMetadata(firaRetinaFont, notoRetinaFont, "Regular", 400)  # 使用Retina作为Regular
+modifyMetadata(firaMediumFont, notoMediumFont, "Medium")
+modifyMetadata(firaSemiBoldFont, notoSemiBoldFont, "SemiBold")
 modifyMetadata(firaBoldFont, notoBoldFont, "Bold")
 
 
@@ -150,5 +164,8 @@ def mergeFont(firaFont: TTFont, notoFont: TTFont, outputPath: str):
     firaFont.save(outputPath)
 
 
+mergeFont(firaLightFont, notoLightFont, "target/FiraNotoSC-Light.ttf")
 mergeFont(firaRetinaFont, notoRetinaFont, "target/FiraNotoSC-Regular.ttf")
+mergeFont(firaMediumFont, notoMediumFont, "target/FiraNotoSC-Medium.ttf")
+mergeFont(firaSemiBoldFont, notoSemiBoldFont, "target/FiraNotoSC-SemiBold.ttf")
 mergeFont(firaBoldFont, notoBoldFont, "target/FiraNotoSC-Bold.ttf")
